@@ -1,4 +1,37 @@
 import random
+from copy import deepcopy
+
+
+class Pile:
+    """classe Pile
+    création d'une instance Pile avec une liste
+    """
+
+    def __init__(self) -> None:
+        "Initialisation d'une pile vide"
+        self.L = []
+
+    def vide(self):
+        "teste si la pile est vide"
+        return self.L == []
+
+    def depiler(self):
+        "dépile"
+        assert not self.vide(), "Pile vide"
+        return self.L.pop()
+
+    def empiler(self, x):
+        "empile"
+        self.L.append(x)
+
+    def taille(self):
+        """Renvoie la taille de la pile"""
+        return len(self.L)
+
+    def sommet(self):
+        """Renvoie le sommet de la pile"""
+        assert not self.vide(), "Pile vide"
+        return self.L[-1]
 
 
 class Laby:
@@ -125,26 +158,62 @@ class Laby:
             laby_walls_around.append(lower_line)
         return laby_walls_around
 
-    def voisins(self, v):
-        lignes = len(self.laby)
-        colonnes = len(self.laby[0])
+    def resolve(self, entree=None, sortie=None):
+        """
+        Renvoie une pile qui permet de résoudre le labyrinthe
+        """
+        entree = (0, 0)
+        sortie = (self.n-1, self.m-1)
+        T = deepcopy(self.laby)
+        p = Pile()
+        v = entree
+        T[v[0]][v[1]] = -1
+        recherche = True
+        while recherche:
+            vois = self.neighbors(T, v)
+            if len(vois) == 0:
+                if p.vide():
+                    return False
+                else:
+                    v = p.depiler()
+            else:
+                p.empiler(v)
+                v = vois[0]
+                T[v[0]][v[1]] = -1
+                if v == sortie:
+                    p.empiler(v)
+                    recherche = False
+        return p
+
+    def neighbors(self, T, v):
+        """
+        Renvoie les voisins autour d'une case
+        """
         V = []
         i, j = v[0], v[1]
-        for a in (-1, 1):
-            if 0 <= i+a < lignes:
-                if self.laby[i+a][j] > 0:
-                    V.append((i+a, j))
-            if 0 <= j+a < colonnes:
-                if self.laby[i][j+a] > 0:
-                    V.append((i, j+a))
+        walls = self.walls[i][j]
+        # recherche les cases sans mur autour, ainsi que l'état de visite de la case (différent de -1)
+        for wall_index in range(len(walls)):
+            if walls[wall_index] == 0:
+                if wall_index == 0 and T[i-1][j] != -1:
+                    V.append((i-1, j))
+                elif wall_index == 1 and T[i+1][j] != -1:
+                    V.append((i+1, j))
+                elif wall_index == 2 and T[i][j-1] != -1:
+                    V.append((i, j-1))
+                elif wall_index == 3 and T[i][j+1] != -1:
+                    V.append((i, j+1))
         return V
 
 
-labyrinthe = Laby(4, 5)
+labyrinthe = Laby(12, 20)
 for l in labyrinthe.laby:
     print(l)
 for w in labyrinthe.walls:
     print(w)
-# print("-"*40)
+print("-"*40)
+pile = labyrinthe.resolve()
+while not pile.vide():
+    print(pile.depiler())
 # for l in labyrinthe.laby_walls_around:
 #     print(l)
