@@ -1,42 +1,74 @@
 import random
 import turtle
 from copy import deepcopy
-# orientation intiale de la tête :
-#vers la droite de l’écran
+
+
+# paramètres de base turtle
+# orientation intiale de la tête (vers la droite de l’écran)
 turtle.setheading(0)
-turtle.hideturtle() # on cache la tortue
-turtle.speed(0) # on accélère la tortue
+# on cache la tortue
+turtle.hideturtle()
+# on accélère la tortue
+turtle.speed(0)
+# couleur et taille du trait
 turtle.color("black", "black")
 turtle.pensize(3)
 
+
 class Pile:
+    """
+    Classe Pile
+    création d'une instance Pile avec une liste
+    """
+
     def __init__(self):
-        self.L=[]
-    
+        """
+        Initialisation d'une pile vide
+        """
+        self.L = []
+
     def vide(self):
-        return self.L==[]
-    
+        """
+        Teste si la pile est vide, renvoie un boolean
+        """
+        return self.L == []
+
     def depiler(self):
-        assert not self.vide(),"Pile vide"
+        """
+        Dépile
+        """
+        assert not self.vide(), "Pile vide"
         return self.L.pop()
-    
-    def empiler(self,x):
-        "empile"
+
+    def empiler(self, x):
+        """
+        Empile
+        """
         self.L.append(x)
-    
+
     def taille(self):
-        l=len(self.L)
-        return l
-    
+        """
+        Renvoie la taille de la pile
+        """
+        return len(self.L)
+
     def sommet(self):
-        l=len(self.L)
-        s=(self.L[l-1])
-        return s
+        """
+        Renvoie le sommet de la pile
+        """
+        assert not self.vide(), "Pile vide"
+        return self.L[-1]
+
 
 class Laby:
+    """
+    Classe Laby
+    création puis résolution du labyrinthe
+    """
+
     # variable du labyrinthe
     laby = []
-    # variable des murs (-> [H, B, G, D])
+    # variable des murs (-> [Haut, Bas, Gauche, Droite])
     walls = []
     # nombre de colonnes
     m = 0
@@ -44,20 +76,27 @@ class Laby:
     n = 0
 
     def __init__(self, m, n):
+        """
+        Initialisation du layrinthe
+        Appelle directement la fonction de création de la base, puis de modélisation du labyrinthe
+        """
         self.m = m
         self.n = n
         # base pour le labyrinthe
         self.make_base()
-        # début de la fusion aléatoire de chemins
+        # fusions aléatoires des chemins
         self.make_fusions()
 
     def make_base(self):
         """
         Génération de la bases du labyrinthe
         """
+        # chiffres pour les cases (de 0 à n*m)
         laby_numbers = list(range(self.m*self.n))
+        # base du labyrinthe (avec chiffres)
         self.laby = [[laby_numbers.pop(0) for colonne in range(self.m)]
                      for ligne in range(self.n)]
+        # base pour les murs (chaque case entourée de tous les murs)
         self.walls = [[[1, 1, 1, 1]
                        for colonne in range(self.m)] for ligne in range(self.n)]
 
@@ -65,16 +104,17 @@ class Laby:
         """
         Ruptures des murs et fusions des chemins jusqu'à ce que le nombre de fusions atteigne m*n-1
         """
+        # variable pour compter le nombre de fusions
         fusions_count = 0
         while fusions_count < self.m*self.n-1:
-            # choix aléatoire des indexes d'une case
+            # choix aléatoire des index d'une case
             random_line_index1 = random.randrange(0, self.n)
             random_column_index1 = random.randrange(0, self.m)
             # variable du mur 1
             random_chosen_wall1 = self.walls[random_line_index1][random_column_index1]
             # liste des choix pour les directions
             direction_choices_index = list(range(4))
-            # suppression des choix impossibles
+            # suppression des choix impossibles (si ce choix peut sortir du labyrinthe)
             if random_line_index1 == 0:
                 direction_choices_index.remove(0)
             if random_line_index1 == (self.n-1):
@@ -93,7 +133,7 @@ class Laby:
             random_wall_index1 = random.choice(direction_choices_index)
             # variable de la première case
             case1 = self.laby[random_line_index1][random_column_index1]
-            # indexes de la seconde case et du second mur selon la direction du mur à fusionner
+            # index de la seconde case et du second mur selon la direction du mur à fusionner
             if random_wall_index1 == 0:
                 random_line_index2 = random_line_index1 - 1
                 random_column_index2 = random_column_index1
@@ -125,173 +165,24 @@ class Laby:
                         number if number != case1 and number != case2 else lower_number for number in self.laby[ligne_index]]
                 # incrémentation du nombre de fusions
                 fusions_count = fusions_count + 1
-
-    @property
-    def laby_walls_around(self):
-        """
-        Retourne la version du labyrinthe avec les murs autour
-        PAS TERMINÉ !!
-        """
-        laby_walls_around = []
-        for line_index in range(self.n):
-            upper_line = []
-            current_line = []
-            lower_line = []
-            for column_index in range(self.m):
-                # mur haut
-                upper_line.append(1)
-                upper_line.append(self.walls[line_index][column_index][0])
-                upper_line.append(1)
-                # mur bas
-                lower_line.append(1)
-                lower_line.append(self.walls[line_index][column_index][1])
-                lower_line.append(1)
-                # mur gauche
-                current_line.append(self.walls[line_index][column_index][2])
-                # case
-                current_line.append(self.laby[line_index][column_index])
-                # mur droit
-                current_line.append(self.walls[line_index][column_index][3])
-            laby_walls_around.append(upper_line)
-            laby_walls_around.append(current_line)
-            laby_walls_around.append(lower_line)
-        return laby_walls_around
-
-
-class Laby:
-    # variable du labyrinthe
-    laby = []
-    # variable des murs (-> [H, B, G, D])
-    walls = []
-    # nombre de colonnes
-    m = 0
-    # nombre de lignes
-    n = 0
-
-    def __init__(self, m, n):
-        self.m = m
-        self.n = n
-        # base pour le labyrinthe
-        self.make_base()
-        # début de la fusion aléatoire de chemins
-        self.make_fusions()
-
-    def make_base(self):
-        """
-        Génération de la bases du labyrinthe
-        """
-        laby_numbers = list(range(self.m*self.n))
-        self.laby = [[laby_numbers.pop(0) for colonne in range(self.m)]
-                     for ligne in range(self.n)]
-        self.walls = [[[1, 1, 1, 1]
-                       for colonne in range(self.m)] for ligne in range(self.n)]
-
-    def make_fusions(self):
-        """
-        Ruptures des murs et fusions des chemins jusqu'à ce que le nombre de fusions atteigne m*n-1
-        """
-        fusions_count = 0
-        while fusions_count < self.m*self.n-1:
-            # choix aléatoire des indexes d'une case
-            random_line_index1 = random.randrange(0, self.n)
-            random_column_index1 = random.randrange(0, self.m)
-            # variable du mur 1
-            random_chosen_wall1 = self.walls[random_line_index1][random_column_index1]
-            # liste des choix pour les directions
-            direction_choices_index = list(range(4))
-            # suppression des choix impossibles
-            if random_line_index1 == 0:
-                direction_choices_index.remove(0)
-            if random_line_index1 == (self.n-1):
-                direction_choices_index.remove(1)
-            if random_column_index1 == 0:
-                direction_choices_index.remove(2)
-            if random_column_index1 == (self.m-1):
-                direction_choices_index.remove(3)
-            # suppression des murs déjà rompus
-            for wall_index in random_chosen_wall1:
-                if random_chosen_wall1[wall_index] == 0 and wall_index in direction_choices_index:
-                    direction_choices_index.remove(wall_index)
-            # choix aléatoire de la direction du mur ([H, B, G, D])
-            if len(direction_choices_index) == 0:
-                continue
-            random_wall_index1 = random.choice(direction_choices_index)
-            # variable de la première case
-            case1 = self.laby[random_line_index1][random_column_index1]
-            # indexes de la seconde case et du second mur selon la direction du mur à fusionner
-            if random_wall_index1 == 0:
-                random_line_index2 = random_line_index1 - 1
-                random_column_index2 = random_column_index1
-                random_wall_index2 = 1
-            elif random_wall_index1 == 1:
-                random_line_index2 = random_line_index1 + 1
-                random_column_index2 = random_column_index1
-                random_wall_index2 = 0
-            elif random_wall_index1 == 2:
-                random_line_index2 = random_line_index1
-                random_column_index2 = random_column_index1 - 1
-                random_wall_index2 = 3
-            elif random_wall_index1 == 3:
-                random_line_index2 = random_line_index1
-                random_column_index2 = random_column_index1 + 1
-                random_wall_index2 = 2
-            # variable de la seconde case
-            case2 = self.laby[random_line_index2][random_column_index2]
-            # détermination du chiffre le plus bas
-            lower_number = case1 if case1 < case2 else case2
-            # vérification si les cases ne sont pas déjà fusionnées
-            if case1 != case2:
-                # rupture du mur
-                self.walls[random_line_index1][random_column_index1][random_wall_index1] = 0
-                self.walls[random_line_index2][random_column_index2][random_wall_index2] = 0
-                # fusion des cases
-                for ligne_index in range(len(self.laby)):
-                    self.laby[ligne_index] = [
-                        number if number != case1 and number != case2 else lower_number for number in self.laby[ligne_index]]
-                # incrémentation du nombre de fusions
-                fusions_count = fusions_count + 1
-
-    @property
-    def laby_walls_around(self):
-        """
-        Retourne la version du labyrinthe avec les murs autour
-        PAS TERMINÉ !!
-        """
-        laby_walls_around = []
-        for line_index in range(self.n):
-            upper_line = []
-            current_line = []
-            lower_line = []
-            for column_index in range(self.m):
-                # mur haut
-                upper_line.append(1)
-                upper_line.append(self.walls[line_index][column_index][0])
-                upper_line.append(1)
-                # mur bas
-                lower_line.append(1)
-                lower_line.append(self.walls[line_index][column_index][1])
-                lower_line.append(1)
-                # mur gauche
-                current_line.append(self.walls[line_index][column_index][2])
-                # case
-                current_line.append(self.laby[line_index][column_index])
-                # mur droit
-                current_line.append(self.walls[line_index][column_index][3])
-            laby_walls_around.append(upper_line)
-            laby_walls_around.append(current_line)
-            laby_walls_around.append(lower_line)
-        return laby_walls_around
 
     def resolve(self, entree=None, sortie=None):
         """
         Renvoie une pile qui permet de résoudre le labyrinthe
         """
-        # variables d'entrée et sortie
+        # vérification des variables d'entrée et sortie
+        assert entree == None or (
+            0 <= entree[0] <= self.n-1 and 0 <= entree[1] <= self.m-1), "Les coordonnées d'entrée sont incorrectes"
+        assert sortie == None or (
+            0 <= sortie[0] <= self.n-1 and 0 <= sortie[1] <= self.m-1), "Les coordonnées de sortie sont incorrectes"
+        # création variables d'entrée et sortie
         if not entree:
             entree = (0, 0)
         if not sortie:
             sortie = (self.n-1, self.m-1)
+        # copie du laby
         T = deepcopy(self.laby)
+        # début de l'algorithme
         p = Pile()
         v = entree
         T[v[0]][v[1]] = -1
@@ -331,75 +222,80 @@ class Laby:
                 elif wall_index == 3 and T[i][j+1] != -1:
                     V.append((i, j+1))
         return V
-    
-    def tracage_laby(self,murs,chemin,taille_case=75):
-        coord=(-500,400) #Coorddonnés du coin haut gauche du labyrinthe dans la fenêtre turtle
+
+    def tracage_laby(self, resolution_pile, taille_case=50):
+        """
+        Dessine le labyrinthe et sa résolution
+        """
+        # Coordonnés du coin haut gauche du labyrinthe dans la fenêtre turtle
+        coord = (-500, 400)
         turtle.penup()
-        turtle.goto(coord[0],coord[1])
+        turtle.goto(coord[0], coord[1])
         turtle.pendown()
-        
-        for i in range(len(murs)): 
-            for j in range(len(murs[0])): #Double boucle "for" pour chaque case en longueur et chaque case en largueur
-                if i == 0 or murs[i][j][0] == 0: #On vérifie si il y a un mur supérieur
+
+        for i in range(len(self.walls)):
+            # Double boucle "for" pour chaque case en longueur et chaque case en largueur
+            for j in range(len(self.walls[0])):
+                # On vérifie si il y a un mur supérieur
+                if i == 0 or self.walls[i][j][0] == 0:
                     turtle.penup()
                 turtle.forward(taille_case)
                 turtle.pendown()
-                if murs[i][j][3] == 1: #On vérifie si il y a un mur à droite.
+                # On vérifie si il y a un mur à droite.
+                if self.walls[i][j][3] == 1:
                     turtle.right(90)
                     turtle.forward(taille_case)
                     turtle.backward(taille_case)
                     turtle.left(90)
+                # On ne vérifie pas les autres murs pour économiser du temps de traçage et calcul
+            # On passe à la ligne d'après
             turtle.penup()
-            turtle.backward(taille_case*len(murs[0]))
+            turtle.backward(taille_case*len(self.walls[0]))
             turtle.right(90)
             turtle.forward(taille_case)
             turtle.left(90)
             turtle.pendown()
-        
-        turtle.goto(coord[0],coord[1])
+
+        # On trace les contours du labyrinthe
+        turtle.goto(coord[0], coord[1])
         for i in range(2):
             turtle.pensize(5)
-            turtle.forward(len(murs[0])*taille_case)
+            turtle.forward(len(self.walls[0])*taille_case)
             turtle.right(90)
-            turtle.forward(len(murs)*taille_case)
+            turtle.forward(len(self.walls)*taille_case)
             turtle.right(90)
             turtle.pensize(3)
-        
-        chemin=self.resolve()
-        arrivee=chemin.depiler()
-        
-        turtle.penup()
-        turtle.goto((arrivee[1]+1)*taille_case-taille_case/2+coord[0],-arrivee[0]*taille_case-taille_case/2+coord[1])
-        turtle.pendown()
-        turtle.color("green")
-        turtle.left(45)
-        turtle.forward(taille_case/2)
-        turtle.backward(taille_case/2)
-        turtle.left(90)
-        turtle.forward(taille_case/2)
-        turtle.backward(taille_case/2)
-        turtle.right(135)
-        
-        for i in range(chemin.taille()):
-            aller=chemin.depiler()
-            turtle.goto((aller[1]+1)*taille_case-taille_case/2+coord[0],-aller[0]*taille_case-taille_case/2+coord[1])
-            
-        continuer=True
-        while continuer==True:
-            if turtle.exitonclick():
-                turtle.bye()
-                continuer=False
+
+        # Traçage de la flèche de fin
+        if resolution_pile != False:
+            arrivee = resolution_pile.depiler()
+            turtle.penup()
+            turtle.goto((arrivee[1]+1)*taille_case-taille_case/2 +
+                        coord[0], -arrivee[0]*taille_case-taille_case/2+coord[1])
+            turtle.pendown()
+            turtle.color("green")
+            turtle.left(45)
+            turtle.forward(taille_case/2)
+            turtle.backward(taille_case/2)
+            turtle.left(90)
+            turtle.forward(taille_case/2)
+            turtle.backward(taille_case/2)
+            turtle.right(135)
+
+        # On trace la résolution du labyrinthe
+        if resolution_pile != False:
+            for i in range(resolution_pile.taille()):
+                aller = resolution_pile.depiler()
+                turtle.goto((aller[1]+1)*taille_case-taille_case/2 +
+                            coord[0], -aller[0]*taille_case-taille_case/2+coord[1])
+
+        turtle.showturtle()
+
+        turtle.exitonclick()
 
 
-Labyri=Laby(50,50)
-c=Pile()
-c.empiler([0,0])
-c.empiler([1,0])
-c.empiler([2,0])
-c.empiler([2,1])
-c.empiler([3,1])
-c.empiler([4,1])
-for l in Labyri.walls:
-    print(l)
-
-Labyri.tracage_laby(Labyri.walls,c,10)
+Labyri = Laby(10, 10)
+# test des erreurs pour les coordonnées
+# Labyri.tracage_laby(Labyri.resolve((0, 10), (9, 0)))
+# Labyri.tracage_laby(Labyri.resolve((0, 8), (18, 0)))
+Labyri.tracage_laby(Labyri.resolve((0, 0), (0, 0)))
