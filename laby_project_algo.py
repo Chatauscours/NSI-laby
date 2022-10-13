@@ -162,8 +162,11 @@ class Laby:
         """
         Renvoie une pile qui permet de résoudre le labyrinthe
         """
-        entree = (0, 0)
-        sortie = (self.n-1, self.m-1)
+        # variables d'entrée et sortie
+        if not entree:
+            entree = (0, 0)
+        if not sortie:
+            sortie = (self.n-1, self.m-1)
         T = deepcopy(self.laby)
         p = Pile()
         v = entree
