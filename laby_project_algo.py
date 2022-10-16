@@ -79,6 +79,10 @@ class Laby:
         """
         Initialisation du layrinthe
         Appelle directement la fonction de création de la base, puis de modélisation du labyrinthe
+
+        Arguments:
+            - m: int représentant le nombre de colonnes
+            - n: int représentant le nombre de lignes
         """
         self.m = m
         self.n = n
@@ -169,6 +173,10 @@ class Laby:
     def resolve(self, entree=None, sortie=None):
         """
         Renvoie une pile qui permet de résoudre le labyrinthe
+        
+        Arguments:
+            - entree: tuple de coordonnées optionnel pour l'entrée
+            - sortie: tuple de coordonnées optionnel pour la sortie
         """
         # vérification des variables d'entrée et sortie
         assert entree == None or (
@@ -206,6 +214,10 @@ class Laby:
     def neighbors(self, T, v):
         """
         Renvoie les voisins autour d'une case
+
+        Arguments:
+            - T: liste de type labyrinthe
+            - v: tuple de coordonnées (la case pour laquelle on doit trouver les voisins)
         """
         V = []
         i, j = v[0], v[1]
@@ -226,6 +238,10 @@ class Laby:
     def tracage_laby(self, resolution_pile, taille_case=50):
         """
         Dessine le labyrinthe et sa résolution
+
+        Arguments:
+            - resolution_pile: objet de la class Pile qui contient la résolution du labyrinthe
+            - taille_case: int optionnel pour la taille des cases
         """
         # Coordonnés du coin haut gauche du labyrinthe dans la fenêtre turtle
         coord = (-500, 400)
@@ -288,14 +304,31 @@ class Laby:
                 aller = resolution_pile.depiler()
                 turtle.goto((aller[1]+1)*taille_case-taille_case/2 +
                             coord[0], -aller[0]*taille_case-taille_case/2+coord[1])
-
-        turtle.showturtle()
+            turtle.showturtle()
 
         turtle.exitonclick()
 
+# ===========================================================
+# tests normaux de génération puis résolution de labyrinthes
+# ===========================================================
+Labyrinthe = Laby(10, 10)
+Labyrinthe.tracage_laby(Labyrinthe.resolve())
+# Labyrinthe = Laby(70, 70)
+# Labyrinthe.tracage_laby(Labyrinthe.resolve(), 10)
+# Labyrinthe = Laby(50, 20)
+# Labyrinthe.tracage_laby(Labyrinthe.resolve(), 20)
 
-Labyri = Laby(10, 10)
-# test des erreurs pour les coordonnées
-# Labyri.tracage_laby(Labyri.resolve((0, 10), (9, 0)))
-# Labyri.tracage_laby(Labyri.resolve((0, 8), (18, 0)))
-Labyri.tracage_laby(Labyri.resolve((0, 0), (0, 0)))
+# ===========================================================
+# tests bizarres de génération puis résolution de labyrinthes
+# ===========================================================
+# Labyrinthe = Laby(12, 12)
+# Labyrinthe.tracage_laby(Labyrinthe.resolve((2, 4), (8, 9)))
+# Labyrinthe.tracage_laby(Labyrinthe.resolve((8, 8), (8, 9)))
+
+# ===========================================================
+# tests des erreurs pour les coordonnées
+# ===========================================================
+# Labyrinthe = Laby(10, 10)
+# Labyrinthe.tracage_laby(Labyrinthe.resolve((0, 10), (9, 0)))
+# Labyrinthe.tracage_laby(Labyrinthe.resolve((0, 8), (18, 0)))
+# Labyrinthe.tracage_laby(Labyrinthe.resolve((0, 0), (0, 0)))
